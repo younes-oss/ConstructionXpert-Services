@@ -9,10 +9,20 @@ public class Projet {
     private Date dateDebut;
     private Date dateFin;
     private double budget;
+    
+    public Projet() {}
 
     // Constructeur
     public Projet(int id,String nom, String description, Date dateDebut, Date dateFin, double budget) {
     	this.id=id;
+        this.nom = nom;
+        this.description = description;
+        this.dateDebut = dateDebut;
+        this.dateFin = dateFin;
+        this.budget = budget;
+    }
+    
+    public Projet(String nom, String description, Date dateDebut, Date dateFin, double budget) {
         this.nom = nom;
         this.description = description;
         this.dateDebut = dateDebut;
@@ -64,6 +74,9 @@ public class Projet {
 
     public void setBudget(double budget) {
         this.budget = budget;
+    }
+    public void setId(int id) {
+        this.id = id;
     }
 
     // Méthode toString pour l'affichage

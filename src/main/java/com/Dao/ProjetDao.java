@@ -11,20 +11,22 @@ public class ProjetDao {
     private Connection connection;
 
     // Constructeur prenant une connexion à la base de données
-    public ProjetDao() {
-        this.connection = DatabaseConnection.getConnection();
+    public ProjetDao(Connection connection) {
+        this.connection = connection;
     }
 
     // 1. Créer un nouveau projet
-    public void creerProjet(String nom, String description, Date dateDebut, Date dateFin, double budget) throws SQLException {
-        String query = "INSERT INTO projet (nom, description, date_debut, date_fin, budget) VALUES (?, ?, ?, ?, ?)";
+    public void creerProjet(Projet projet) throws SQLException {
+        String query = "INSERT INTO projet (id_admin, nom, description, date_debut, date_fin, budget) VALUES (?, ?, ?, ?, ?, ?)";
+        
         try (PreparedStatement stmt = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
-            stmt.setString(1, nom);
-            stmt.setString(2, description);
-            stmt.setDate(3, dateDebut);
-            stmt.setDate(4, dateFin);
-            stmt.setDouble(5, budget);
-            
+            stmt.setInt(1, 1); // Tous les projets auront id_admin = 1
+            stmt.setString(2, projet.getNom());
+            stmt.setString(3, projet.getDescription());
+            stmt.setDate(4, projet.getDateDebut());
+            stmt.setDate(5, projet.getDateFin());
+            stmt.setDouble(6, projet.getBudget());
+
             int affectedRows = stmt.executeUpdate();
             if (affectedRows == 0) {
                 throw new SQLException("Échec de la création du projet, aucune ligne affectée.");
@@ -32,49 +34,56 @@ public class ProjetDao {
         }
     }
 
-    // 2. Afficher la liste des projets existants avec leurs détails
+
     public List<Projet> getListeProjets() throws SQLException {
         List<Projet> projets = new ArrayList<>();
-        String query = "SELECT * FROM projet";
-        
-        try (Statement stmt = connection.createStatement();
-             ResultSet rs = stmt.executeQuery(query)) {
-            while (rs.next()) {
-                Projet projet = new Projet(
-                    rs.getInt("id"),
-                    rs.getString("nom"),
-                    rs.getString("description"),
-                    rs.getDate("date_debut"),
-                    rs.getDate("date_fin"),
-                    rs.getDouble("budget")
-                );
+        String query = "SELECT id_projet, nom, description, date_debut, date_fin, budget FROM projet";
+
+        try (PreparedStatement stmt = connection.prepareStatement(query);
+             ResultSet resultSet = stmt.executeQuery()) {
+
+            while (resultSet.next()) {
+                int id = resultSet.getInt("id_projet");  // 🔥 Récupération de l'ID
+                String nom = resultSet.getString("nom");
+                String description = resultSet.getString("description");
+                Date dateDebut = resultSet.getDate("date_debut");
+                Date dateFin = resultSet.getDate("date_fin");
+                double budget = resultSet.getDouble("budget");
+
+                // 🔥 Associer l'ID au projet
+                Projet projet = new Projet(id, nom, description, dateDebut, dateFin, budget);
                 projets.add(projet);
             }
         }
         return projets;
     }
 
+
+
+
     // 3. Mettre à jour les détails d'un projet existant
-    public void mettreAJourProjet(int id, String nom, String description, Date dateDebut, Date dateFin, double budget) throws SQLException {
+    public void mettreAJourProjet(Projet projet) throws SQLException {
         String query = "UPDATE projet SET nom = ?, description = ?, date_debut = ?, date_fin = ?, budget = ? WHERE id = ?";
+        
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
-            stmt.setString(1, nom);
-            stmt.setString(2, description);
-            stmt.setDate(3, dateDebut);
-            stmt.setDate(4, dateFin);
-            stmt.setDouble(5, budget);
-            stmt.setInt(6, id);
-            
+            stmt.setString(1, projet.getNom());
+            stmt.setString(2, projet.getDescription());
+            stmt.setDate(3, projet.getDateDebut());
+            stmt.setDate(4, projet.getDateFin());
+            stmt.setDouble(5, projet.getBudget());
+            stmt.setInt(6, projet.getId());
+
             int affectedRows = stmt.executeUpdate();
             if (affectedRows == 0) {
-                throw new SQLException("Échec de la mise à jour, aucun projet trouvé avec l'ID " + id);
+                throw new SQLException("Échec de la mise à jour, aucun projet trouvé avec l'ID " + projet.getId());
             }
         }
     }
 
+
     // 4. Supprimer un projet existant
     public void supprimerProjet(int id) throws SQLException {
-        String query = "DELETE FROM projet WHERE id = ?";
+        String query = "DELETE  FROM projet WHERE id_projet = ?";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setInt(1, id);
             
