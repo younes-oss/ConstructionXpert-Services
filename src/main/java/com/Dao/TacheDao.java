@@ -27,4 +27,27 @@ public TacheDao(Connection connection) {
 		    }
 		}
 
+		
+		 // Récupérer la liste des tâches associées à un projet
+	    public List<Tache> getTachesParProjet(int projetId) throws SQLException {
+	        List<Tache> taches = new ArrayList<>();
+	        String query = "SELECT * FROM tache WHERE projet_id = ?";
+	        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+	            stmt.setInt(1, projetId);
+	            ResultSet resultSet = stmt.executeQuery();
+
+	            while (resultSet.next()) {
+	                Tache tache = new Tache(
+	                    resultSet.getInt("id"),
+	                    resultSet.getString("nom"),
+	                    resultSet.getString("description"),
+	                    resultSet.getDate("date_debut"),
+	                    resultSet.getDate("date_fin"),
+	                    resultSet.getInt("projet_id")
+	                );
+	                taches.add(tache);
+	            }
+	        }
+	        return taches;
+	    }
 }
