@@ -63,5 +63,13 @@ public TacheDao(Connection connection) {
 	        }
 	    }
 	    
+	    public void supprimerTache(int id) throws SQLException {
+	        String query = "DELETE FROM tache WHERE id = ?";
+	        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+	            stmt.setInt(1, id);
+	            stmt.executeUpdate();
+	        }
+	    }
+	    
 	    
 }
