@@ -50,4 +50,18 @@ public TacheDao(Connection connection) {
 	        }
 	        return taches;
 	    }
+	    
+	    public void mettreAJourTache(Tache tache) throws SQLException {
+	        String query = "UPDATE tache SET nom = ?, description = ?, statut = ?, date_debut = ?, date_fin = ? WHERE id = ?";
+	        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+	            stmt.setString(1, tache.getNom());
+	            stmt.setString(2, tache.getDescription());
+	            stmt.setDate(3, new java.sql.Date(tache.getDateDebut().getTime()));
+	            stmt.setDate(4, new java.sql.Date(tache.getDateFin().getTime()));
+	            stmt.setInt(5, tache.getId());
+	            stmt.executeUpdate();
+	        }
+	    }
+	    
+	    
 }
