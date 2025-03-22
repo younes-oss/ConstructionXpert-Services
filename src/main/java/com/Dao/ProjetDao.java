@@ -1,7 +1,6 @@
 package com.Dao;
 
 import com.models.Projet;
-import com.utils.DatabaseConnection;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -93,4 +92,25 @@ public class ProjetDao {
             }
         }
     }
+    
+    public Projet getProjetById(int projetId) throws SQLException {
+        String query = "SELECT * FROM projet WHERE id_projet = ?";
+        
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setInt(1, projetId);
+            ResultSet rs = stmt.executeQuery();
+            
+            if (rs.next()) {
+                String nom = rs.getString("nom");
+                String description = rs.getString("description");
+                Date dateDebut = rs.getDate("date_debut");
+                Date dateFin = rs.getDate("date_fin");
+                double budget = rs.getDouble("budget");
+                
+                return new Projet(projetId, nom, description, dateDebut, dateFin, budget);
+            }
+        }
+        return null; // Retourne null si aucun projet trouvé
+    }
+
 }
